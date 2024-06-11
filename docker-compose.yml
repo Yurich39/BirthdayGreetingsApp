@@ -1,0 +1,40 @@
+version: '3.5'
+services:
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'postgres'
+    networks:
+      - appnet
+
+  app:
+    build: .
+    container_name: app
+    image: app
+    environment:
+      PG_URL: 'postgres://user:pass@postgres:5432/postgres?sslmode=disable'
+    ports:
+      - 8080:80
+    depends_on:
+      - postgres
+    networks:
+      - internet
+      - appnet
+
+volumes:
+  pg-data:
+
+
+networks:
+  internet:
+    name: internet
+    driver: bridge
+  appnet:
+    name: appnet
+    driver: bridge
